@@ -8,17 +8,27 @@
 // Static global variables
 static Model *currentModel = NULL;
 static void (*drawModelFunc)(VECTOR *, SVECTOR *, VECTOR *) = NULL;
-static u_long (*_ot)[OTLEN] = NULL;
+static unsigned long (*_ot)[OTLEN] = NULL;
 static char (*_primbuff)[PRIMBUFFLEN] = NULL;
 static char *_nextpri = NULL;
 static short *_db = NULL;
 
+// drawing functions
+void drawModelTextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
+void drawModelFlatShaded(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
+void drawModelUntextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
+
 void setModel(Model *model) {
+    if (model == NULL) {
+        currentModel = NULL;
+        drawModelFunc = NULL;
+    }
+
     currentModel = model;
 
     switch (currentModel->drawing_mode) {
         case 0:
-            drawModelFunc = drawModel;
+            drawModelFunc = drawModelTextured;
             break;
         case 1:
             drawModelFunc = drawModelFlatShaded;
@@ -32,10 +42,13 @@ void setModel(Model *model) {
 }
 
 void drawFunc(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
+    if (drawModeFunc == NULL) {
+        return;
+    }
     drawModelFunc(position, rotate, scale);
 }
 
-void drawModel(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
+void drawModelTextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
     long t, p, OTz, Flag;
     POLY_GT3 *poly;
     MATRIX  Matrix = { 0 };  // Matrix data for the GTE

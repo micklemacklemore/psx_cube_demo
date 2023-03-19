@@ -4,7 +4,6 @@
 #include "drawing.h"
 #include "cube.c"
 
-
 static DISPENV disp[2];
 static DRAWENV draw[2];
 
