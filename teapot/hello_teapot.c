@@ -18,7 +18,7 @@
 #include <stdio.h>
 // Sample vector model
 
-#include "cube.c"
+#include "teapot.c"
 #define VMODE       0
 #define SCREENXRES 320
 #define SCREENYRES 240
@@ -68,23 +68,23 @@ void loadTexture(u_long *tim, TIM_IMAGE *tparam){
     }
 }
 
-void loadMyImage(void) {
-    TIM_IMAGE my_image;
+// void loadMyImage(void) {
+//     TIM_IMAGE my_image;
 
-    extern u_long tim_cont[];;
+//     extern u_long tim_cont[];;
 
-    // load the texture
-    loadTexture(tim_cont, &my_image);
+//     // load the texture
+//     loadTexture(tim_cont, &my_image);
 
-    // Copy the TIM coordinates
-    tim_prect   = *my_image.prect;
-    tim_crect   = *my_image.crect;
-    tim_mode    = my_image.mode;
+//     // Copy the TIM coordinates
+//     tim_prect   = *my_image.prect;
+//     tim_crect   = *my_image.crect;
+//     tim_mode    = my_image.mode;
 
-    // Calculate U,V offset for TIMs that are not page aligned
-    tim_uoffs = (tim_prect.x%64)<<(2-(tim_mode&0x3));
-    tim_voffs = (tim_prect.y&0xff);
-}
+//     // Calculate U,V offset for TIMs that are not page aligned
+//     tim_uoffs = (tim_prect.x%64)<<(2-(tim_mode&0x3));
+//     tim_voffs = (tim_prect.y&0xff);
+// }
 
 void init() {
     // Reset the GPU before doing anything and the controller
@@ -117,11 +117,11 @@ void init() {
     draw[0].isbg = 1;
     draw[1].isbg = 1;
 
-    loadMyImage();
+    // loadMyImage();
 
-    // only have one texture image, so set page of that texture as the default
-    draw[0].tpage = getTPage( tim_mode&0x3, 0, tim_prect.x, tim_prect.y );
-    draw[1].tpage = getTPage( tim_mode&0x3, 0, tim_prect.x, tim_prect.y );
+    // // only have one texture image, so set page of that texture as the default
+    // draw[0].tpage = getTPage( tim_mode&0x3, 0, tim_prect.x, tim_prect.y );
+    // draw[1].tpage = getTPage( tim_mode&0x3, 0, tim_prect.x, tim_prect.y );
 
     PutDispEnv(&disp[db]);
     PutDrawEnv(&draw[db]);
@@ -146,17 +146,12 @@ int main() {
     long    t, p, OTz, Flag;                       // t == vertex count, p == depth cueing interpolation value, OTz ==  value to create Z-ordered OT, Flag == see LibOver47.pdf, p.143    
     POLY_GT3 *poly = {0};                           // pointer to a POLY_G4 
     SVECTOR Rotate = { 232, 0, 0, 0 };                        
-    VECTOR  Scale = { ONE/2, ONE/2, ONE/2, 0 };      // ONE == 4096
+    VECTOR  Scale = { ONE, ONE, ONE, 0 };            // ONE == 4096
     MATRIX  Matrix={0};                              // Matrix data for the GTE
     unsigned int time = 0;
 
     VECTOR cubePositions[] = {
         {0, 0, 0+CENTERX * 2, 0},
-        {200,  50, 150+CENTERX * 2, 0},
-        {-150, -220, 250+CENTERX * 2, 0},
-        {980, -800, 1230+CENTERX * 2, 0},
-        {-240, 40, 35+CENTERX * 2, 0},
-        {170,  -400, 750+CENTERX * 2, 0}
     };
 
     init();
@@ -164,7 +159,7 @@ int main() {
     // Main loop
     while (1) {
         Rotate = (SVECTOR){ 232, 0, 0, 0 };                        
-        Scale = (VECTOR){ ONE/2, ONE/2, ONE/2, 0 };      // ONE == 4096
+        Scale = (VECTOR){ ONE, ONE, ONE, 0 };      // ONE == 4096
         Matrix = (MATRIX){ 0 };        
         Rotate.vy += time; // Pan
         time += 8;
@@ -172,7 +167,7 @@ int main() {
         // Clear the current OT
         ClearOTagR(ot[db], OTLEN);
 
-        for (cube_i = 0; cube_i < 6; cube_i++) {
+        for (cube_i = 0; cube_i < 1; cube_i++) {
             // Convert and set the matrixes
             //Rotate.vy += 9 * i; // Pan
             Rotate.vx += 2 * i; // Tilt
@@ -183,11 +178,8 @@ int main() {
             SetRotMatrix(&Matrix);
             SetTransMatrix(&Matrix);
 
-            // Render the sample vector model
-            t = 0;
-
             // modelCube is a TMESH, len member == # vertices, but here it's # of triangle... So, for each tri * 3 vertices ...
-            for (i = 0; i < (modelCube.len*3); i += 3) {               
+            for (i = 0; i < 6000; i += 3) {               
                 poly = (POLY_GT3 *)nextpri;
 
                 // Initialize the primitive and set its color values
@@ -196,27 +188,26 @@ int main() {
                 setRGB1(poly, 128, 128, 128);
                 setRGB2(poly, 128, 128, 128);
                 setTPage(poly, tim_mode&0x3, 0, tim_prect.x, tim_prect.y);
-                setUV3(
-                    poly, 
-                    tim_uoffs+modelCube_UV[t][0], 
-                    tim_voffs+modelCube_UV[t][1], 
-                    tim_uoffs+modelCube_UV[t+1][0], 
-                    tim_voffs+modelCube_UV[t+1][1], 
-                    tim_uoffs+modelCube_UV[t+2][0],
-                    tim_voffs+modelCube_UV[t+2][1]
-                    );
+                // setUV3(
+                //     poly, 
+                //     tim_uoffs+model_UV[index[i].uv][0], 
+                //     tim_voffs+model_UV[index[i].uv][1], 
+                //     tim_uoffs+model_UV[index[i + 1].uv][0], 
+                //     tim_voffs+model_UV[index[i + 1].uv][1], 
+                //     tim_uoffs+model_UV[index[i + 2].uv][0], 
+                //     tim_voffs+model_UV[index[i + 2].uv][1]
+                // );
 
                 // Rotate, translate, and project the vectors and output the results into a primitive
-                OTz  = RotTransPers(&modelCube_mesh[modelCube_index[t]]  , (long*)&poly->x0, &p, &Flag);
-                OTz += RotTransPers(&modelCube_mesh[modelCube_index[t+2]], (long*)&poly->x1, &p, &Flag);
-                OTz += RotTransPers(&modelCube_mesh[modelCube_index[t+1]], (long*)&poly->x2, &p, &Flag);
+                OTz = RotTransPers(&model_mesh[index[i].vertex], (long*)&poly->x0, &p, &Flag);
+                OTz += RotTransPers(&model_mesh[index[i + 1].vertex], (long*)&poly->x1, &p, &Flag);
+                OTz += RotTransPers(&model_mesh[index[i + 2].vertex], (long*)&poly->x2, &p, &Flag);
 
                 // Sort the primitive into the OT
                 OTz /= 3;
                 if ((OTz > 0) && (OTz < OTLEN))
                     AddPrim(&ot[db][OTz-2], poly);
                 nextpri += sizeof(POLY_GT3);
-                t+=3;
             }
         }
 

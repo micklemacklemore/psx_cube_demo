@@ -1,14 +1,12 @@
-TARGET = viewer
+TARGET = hello_teapot
 
-SRCS = third_party/nugget/common/crt0/crt0.s \
-viewer.c \
-drawing.c \
-CFACE.s
+SRCS = ../third_party/nugget/common/crt0/crt0.s \
+hello_teapot.c
 
 TYPE = ps-exe
 
-CPPFLAGS += -Ithird_party/psyq-iwyu/include
-LDFLAGS += -Lthird_party/psyq/lib
+CPPFLAGS += -I../third_party/psyq-iwyu/include
+LDFLAGS += -L../third_party/psyq/lib
 LDFLAGS += -Wl,--start-group
 LDFLAGS += -lapi
 LDFLAGS += -lc
@@ -34,4 +32,5 @@ LDFLAGS += -lspu
 LDFLAGS += -ltap
 LDFLAGS += -Wl,--end-group
 
-include third_party/nugget/common.mk
+include ../third_party/nugget/common.mk
+

@@ -9,7 +9,7 @@
       "remote": true,
       "cwd": "${workspaceRoot}",
       "valuesFormatting": "parseText",
-      "executable": "${workspaceRoot}/hello_cube.elf",
+      "executable": "${workspaceRoot}/viewer.elf",
       "stopAtConnect": true,
       "gdbpath": "gdb-multiarch",
       "windows": {
@@ -20,7 +20,7 @@
       },
       "autorun": [
         "monitor reset shellhalt",
-        "load hello_cube.elf",
+        "load viewer.elf",
         //"tbreak main",
         "continue"
       ]
