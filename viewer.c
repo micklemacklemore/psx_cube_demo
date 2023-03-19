@@ -66,7 +66,7 @@ int main() {
             drawFunc(&cubePositions[cube_i], &Rotate, &Scale);
         }
 
-        display(disp, draw);
+        displayDrawing(disp, draw);
     }
 
     return 0;

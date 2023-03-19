@@ -32,6 +32,6 @@ void setModel(Model *model);
 void drawFunc(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
 void loadTexture(u_long *tim, Texture *texture);
 void initDrawing(u_long ot[][OTLEN], char primbuff[][PRIMBUFFLEN], DISPENV *disp, DRAWENV *draw, short *db, char **nextpri);
-void display(DISPENV *disp, DRAWENV *draw);
+void displayDrawing(DISPENV *disp, DRAWENV *draw);
 
 #endif // DRAWING_H

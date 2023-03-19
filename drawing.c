@@ -42,7 +42,7 @@ void setModel(Model *model) {
 }
 
 void drawFunc(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
-    if (drawModeFunc == NULL) {
+    if (drawModelFunc == NULL) {
         return;
     }
     drawModelFunc(position, rotate, scale);
@@ -171,7 +171,7 @@ void initDrawing(u_long ot[][OTLEN], char primbuff[][PRIMBUFFLEN], DISPENV *disp
     PutDrawEnv(&draw[*_db]);
 }
 
-void display(DISPENV *disp, DRAWENV *draw) {
+void displayDrawing(DISPENV *disp, DRAWENV *draw) {
     DrawSync(0);
     VSync(0);
     PutDispEnv(&disp[*_db]);
