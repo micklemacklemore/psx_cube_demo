@@ -5,7 +5,7 @@
 #include <libetc.h>
 #include <stddef.h>
 
-// Static global variables
+// static global variables
 static Model *currentModel = NULL;
 static void (*drawModelFunc)(VECTOR *, SVECTOR *, VECTOR *) = NULL;
 static unsigned long (*_ot)[OTLEN] = NULL;
@@ -171,7 +171,7 @@ void initDrawing(u_long ot[][OTLEN], char primbuff[][PRIMBUFFLEN], DISPENV *disp
     PutDrawEnv(&draw[*_db]);
 }
 
-void display(DISPENV *disp, DRAWENV draw[]) {
+void display(DISPENV *disp, DRAWENV *draw) {
     DrawSync(0);
     VSync(0);
     PutDispEnv(&disp[*_db]);
