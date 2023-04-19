@@ -1,6 +1,6 @@
 # psx_cube_demo
 
-I have created a drawing library (see drawing.c / drawing.h) for the Playstation 1 using the original Sony Playstation libraries. 
+I have created a drawing library (see `drawing.c` / `drawing.h`) for the Playstation 1 using the original Sony Playstation libraries. 
 It allows you to draw any arbitrary 3D object (provided that they're in the correct format) with arbitrary textures. Using this, I
 created the demo's below!
 
@@ -9,6 +9,8 @@ created the demo's below!
 https://user-images.githubusercontent.com/56715549/232962554-7d6fbff6-2940-4c7d-b055-9086281b39af.mp4
 
 ### Teapot program
+
+(The teapot is flat-shaded, as the Playstation was never meant to render an object with so many polygonal shapes....)
 
 https://user-images.githubusercontent.com/56715549/232962616-d35632f1-8aab-45b2-b159-73d7ed39bfb9.mp4
 
