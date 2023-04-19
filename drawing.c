@@ -238,7 +238,7 @@ void initDrawing(u_long ot[][OTLEN], char primbuff[][PRIMBUFFLEN], DISPENV *disp
 
     SetDispMask(1); // Display on screen  
 
-    setRGB0(&draw[0], 255, 0, 0);
+    setRGB0(&draw[0], 51, 76, 76);
     setRGB0(&draw[1], 51, 76, 76);
 
     draw[0].isbg = 1;

@@ -51,9 +51,7 @@ int main() {
 
         // Clear the current OT and initialize a new one
         ClearOTagR(ot[db], OTLEN);
-
         drawFunc(&Position, &Rotate, &Scale);
-
         displayDrawing();
     }
 
