@@ -21,7 +21,7 @@
       "autorun": [
         "monitor reset shellhalt",
         "load viewer.elf",
-        //"tbreak main",
+        "tbreak main",
         "continue"
       ]
     }

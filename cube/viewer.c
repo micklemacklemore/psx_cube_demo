@@ -1,7 +1,7 @@
 #include <stddef.h>
 
-#include "constants.h"
-#include "drawing.h"
+#include <constants.h>
+#include <drawing.h>
 #include "cube.c"
 
 static DISPENV disp[2];
@@ -33,17 +33,17 @@ int main() {
         .uv = model_UV,
         .index = model_index,
         .num_vertices = 36,
-        .drawing_mode = 0,      // 0: textured, 1: flat-shaded, 2: untextured
+        .drawing_mode = SHADED_TEXTURED,    
         .texture = NULL,
     };
 
     VECTOR cubePositions[] = {
-        {0, 0, 0+CENTERX * 2, 0},
-        {200,  50, 150+CENTERX * 2, 0},
-        {-150, -220, 250+CENTERX * 2, 0},
-        {980, -800, 1230+CENTERX * 2, 0},
-        {-240, 40, 35+CENTERX * 2, 0},
-        {170,  -400, 750+CENTERX * 2, 0}
+        {0, 0, 0 + CENTERX * 2, 0},
+        {200,  50, 150 + CENTERX * 2, 0},
+        {-150, -220, 250 + CENTERX * 2, 0},
+        {980, -800, 1230 + CENTERX * 2, 0},
+        {-240, 40, 35 + CENTERX * 2, 0},
+        {170,  -400, 750 + CENTERX * 2, 0}
     };
 
     Texture cubeTexture;
@@ -65,8 +65,8 @@ int main() {
             Rotate.vz += 30 * cube_i; // Roll
             drawFunc(&cubePositions[cube_i], &Rotate, &Scale);
         }
-
-        displayDrawing(disp, draw);
+        
+        displayDrawing();
     }
 
     return 0;

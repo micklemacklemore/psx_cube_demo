@@ -4,6 +4,9 @@
 #include <libgpu.h>
 #include <libetc.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
 
 // static global variables
 static Model *currentModel = NULL;
@@ -12,11 +15,13 @@ static unsigned long (*_ot)[OTLEN] = NULL;
 static char (*_primbuff)[PRIMBUFFLEN] = NULL;
 static char *_nextpri = NULL;
 static short *_db = NULL;
+static DISPENV *_disp = NULL;
+static DRAWENV *_draw = NULL;
 
 // drawing functions
-void drawModelTextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
-void drawModelFlatShaded(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
-void drawModelUntextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
+void drawModelShadedTextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
+void drawModelFlat(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
+void drawModelQuadFlat(VECTOR *position, SVECTOR *rotate, VECTOR *scale);
 
 void setModel(Model *model) {
     if (model == NULL) {
@@ -27,17 +32,16 @@ void setModel(Model *model) {
     currentModel = model;
 
     switch (currentModel->drawing_mode) {
-        case 0:
-            drawModelFunc = drawModelTextured;
+        case SHADED_TEXTURED:
+            drawModelFunc = drawModelShadedTextured;
             break;
-        case 1:
-            drawModelFunc = drawModelFlatShaded;
+        case FLAT:
+            drawModelFunc = drawModelFlat;
             break;
-        case 2:
-            drawModelFunc = drawModelUntextured;
-            break;
+        case QUAD_FLAT:
+            drawModelFunc = drawModelQuadFlat;
         default:
-            break;
+            break;  
     }
 }
 
@@ -48,7 +52,7 @@ void drawFunc(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
     drawModelFunc(position, rotate, scale);
 }
 
-void drawModelTextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
+void drawModelShadedTextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
     long t, p, OTz, Flag;
     POLY_GT3 *poly;
     MATRIX  Matrix = { 0 };  // Matrix data for the GTE
@@ -68,8 +72,8 @@ void drawModelTextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
 
     for (t = 0; t < currentModel->num_vertices; t += 3) {
         poly = (POLY_GT3 *)_nextpri;
-
         SetPolyGT3(poly);
+        
         setRGB0(poly, 128, 128, 128);
         setRGB1(poly, 128, 128, 128);
         setRGB2(poly, 128, 128, 128);
@@ -87,21 +91,93 @@ void drawModelTextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
         OTz = RotTransPers(&currentModel->mesh[index[t].vertex], (long *)&poly->x0, &p, &Flag);
         OTz += RotTransPers(&currentModel->mesh[index[t + 1].vertex], (long *)&poly->x1, &p, &Flag);
         OTz += RotTransPers(&currentModel->mesh[index[t + 2].vertex], (long *)&poly->x2, &p, &Flag);
-
         OTz /= 3;
+
         if ((OTz > 0) && (OTz < OTLEN)) {
             AddPrim(&_ot[*_db][OTz - 2], poly);
         }
+
         _nextpri += sizeof(POLY_GT3);
     }
 }
 
-void drawModelFlatShaded(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
-    // Implement the flat-shaded drawing code here (with POLY_F3 or POLY_F4)
+void drawModelFlat(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
+    long t, p, OTz, Flag;
+    POLY_F3 *poly;
+    MATRIX  Matrix = { 0 };  // Matrix data for the GTE
+
+    if (currentModel == NULL) {
+        return;
+    }
+
+    Index *index = currentModel->index;
+    Texture *texture = currentModel->texture;
+
+    RotMatrix(rotate, &Matrix);
+    TransMatrix(&Matrix, position);
+    ScaleMatrix(&Matrix, scale);
+    SetRotMatrix(&Matrix);
+    SetTransMatrix(&Matrix);
+
+    for (t = 0; t < currentModel->num_vertices; t += 3) {
+        poly = (POLY_F3 *)_nextpri;
+        SetPolyF3(poly);
+
+        /* alternate between rgb just so it's interesting */
+        setRGB0(poly, 255, 0, 0); 
+                
+
+        OTz = RotTransPers(&currentModel->mesh[index[t].vertex], (long *)&poly->x0, &p, &Flag);
+        OTz += RotTransPers(&currentModel->mesh[index[t + 1].vertex], (long *)&poly->x1, &p, &Flag);
+        OTz += RotTransPers(&currentModel->mesh[index[t + 2].vertex], (long *)&poly->x2, &p, &Flag);
+        OTz /= 3;
+
+        if ((OTz > 0) && (OTz < OTLEN)) {
+            AddPrim(&_ot[*_db][OTz - 2], poly);
+        }
+
+        _nextpri += sizeof(POLY_F3);
+    }
 }
 
-void drawModelUntextured(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
-    // Implement the untextured drawing code here (with POLY_G3 or POLY_G4)
+void drawModelQuadFlat(VECTOR *position, SVECTOR *rotate, VECTOR *scale) {
+    long t, p, OTz, Flag;
+    POLY_F4 *poly;
+    MATRIX  Matrix = { 0 };  // Matrix data for the GTE
+
+    if (currentModel == NULL) {
+        return;
+    }
+
+    Index *index = currentModel->index;
+    Texture *texture = currentModel->texture;
+
+    RotMatrix(rotate, &Matrix);
+    TransMatrix(&Matrix, position);
+    ScaleMatrix(&Matrix, scale);
+    SetRotMatrix(&Matrix);
+    SetTransMatrix(&Matrix);
+
+    for (t = 0; t < currentModel->num_vertices; t += 4) {
+        poly = (POLY_F4 *)_nextpri;
+        SetPolyF4(poly);
+
+        /* alternate between rgb just so it's interesting */
+        setRGB0(poly, 255, 0, 0); 
+
+        OTz = RotTransPers(&currentModel->mesh[index[t].vertex], (long *)&poly->x0, &p, &Flag);
+        OTz += RotTransPers(&currentModel->mesh[index[t + 1].vertex], (long *)&poly->x1, &p, &Flag);
+        OTz += RotTransPers(&currentModel->mesh[index[t + 2].vertex], (long *)&poly->x2, &p, &Flag);
+        OTz += RotTransPers(&currentModel->mesh[index[t + 3].vertex], (long *)&poly->x3, &p, &Flag);
+        OTz /= 4;
+
+        if ((OTz > 0) && (OTz < OTLEN)) {
+            AddPrim(&_ot[*_db][OTz - 3], poly);
+        }
+
+        _nextpri += sizeof(POLY_F4);
+        assert(_nextpri <= &(_primbuff[(*_db) + 1][0]));
+    }
 }
 
 void loadTexture(u_long *tim, Texture *texture) {
@@ -139,6 +215,8 @@ void initDrawing(u_long ot[][OTLEN], char primbuff[][PRIMBUFFLEN], DISPENV *disp
     _primbuff = primbuff;
     _nextpri = *nextpri;
     _db = db;
+    _disp = disp;
+    _draw = draw;
 
     // Initialize and setup the GTE
     InitGeom();
@@ -160,8 +238,7 @@ void initDrawing(u_long ot[][OTLEN], char primbuff[][PRIMBUFFLEN], DISPENV *disp
 
     SetDispMask(1); // Display on screen  
 
-    // TODO: set background color
-    setRGB0(&draw[0], 51, 76, 76);
+    setRGB0(&draw[0], 255, 0, 0);
     setRGB0(&draw[1], 51, 76, 76);
 
     draw[0].isbg = 1;
@@ -171,11 +248,11 @@ void initDrawing(u_long ot[][OTLEN], char primbuff[][PRIMBUFFLEN], DISPENV *disp
     PutDrawEnv(&draw[*_db]);
 }
 
-void displayDrawing(DISPENV *disp, DRAWENV *draw) {
+void displayDrawing() {
     DrawSync(0);
     VSync(0);
-    PutDispEnv(&disp[*_db]);
-    PutDrawEnv(&draw[*_db]);
+    PutDispEnv(&_disp[*_db]);
+    PutDrawEnv(&_draw[*_db]);
     DrawOTag(&_ot[*_db][OTLEN - 1]);
     *_db = !(*_db);
     _nextpri = _primbuff[*_db];
